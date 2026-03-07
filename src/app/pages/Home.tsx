@@ -42,7 +42,7 @@ const steps = [
     step: "02",
     title: "Cryptographic Signing",
     description:
-      "Each degree record is signed with Deep Signature's proprietary cryptographic algorithm, creating a unique, tamper-proof digital signature. This signature is immutably linked to the graduate's personal identity.",
+      "Each degree record is signed with Deeploma's proprietary cryptographic algorithm, creating a unique, tamper-proof digital signature. This signature is immutably linked to the graduate's personal identity.",
     color: "from-teal-500/20 to-teal-500/5",
     border: "border-teal-500/30",
     accent: "text-teal-400",
@@ -127,7 +127,7 @@ function HowItWorksSlider() {
   const step = steps[current];
 
   return (
-    <section className="py-24 px-6 max-w-5xl mx-auto">
+    <section className="py-24 px-6 w-full">
       <div className="text-center mb-14">
         <span className="text-cyan-400 text-sm uppercase tracking-widest font-medium">
           How It Works
@@ -329,7 +329,7 @@ export default function Home() {
               Built for security, built for scale
             </h2>
             <p className="text-gray-400 max-w-xl mx-auto">
-              Deep Signature is engineered with the most advanced credential
+              Deeploma is engineered with the most advanced credential
               verification technology available today.
             </p>
           </div>
@@ -364,7 +364,7 @@ export default function Home() {
               End credential fraud — forever
             </h2>
             <p className="text-gray-400 leading-relaxed mb-6">
-              Fake degrees cost businesses billions every year. Deep Signature
+              Fake degrees cost businesses billions every year. Deeploma
               creates an immutable link between a graduate's identity and their
               academic record — verified by the awarding institution itself.
             </p>
@@ -416,7 +416,7 @@ export default function Home() {
             </h2>
             <p className="text-gray-400 leading-relaxed mb-6">
               Universities and colleges register their graduates' records with
-              Deep Signature, adding a layer of authority and authenticity to
+              Deeploma, adding a layer of authority and authenticity to
               every degree they issue. Our secure portal makes the process
               simple, fast, and compliant with data protection regulations.
             </p>
@@ -475,11 +475,11 @@ export default function Home() {
               className="text-white"
               style={{ fontFamily: "'Climate Crisis', cursive", fontSize: "1rem" }}
             >
-              Deep Signature
+              Deeploma
             </span>
           </div>
           <p className="text-gray-500 text-sm">
-            © 2026 Deep Signature. All rights reserved.
+            © 2026 Deeploma. All rights reserved.
           </p>
           <div className="flex gap-6 text-sm text-gray-500">
             <a href="#" className="hover:text-gray-300 transition-colors">Privacy Policy</a>

@@ -53,7 +53,7 @@ const values = [
   {
     icon: <Award className="w-6 h-6 text-yellow-400" />,
     title: "Academic Trust",
-    desc: "We are an academic institution's ally, not their replacement. Deep Signature amplifies the value of every degree issued.",
+    desc: "We are an academic institution's ally, not their replacement. Deeploma amplifies the value of every degree issued.",
   },
 ];
 
@@ -71,7 +71,7 @@ export default function About() {
             className="text-white mb-6"
             style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2.5rem, 6vw, 3.5rem)" }}
           >
-            About Deep Signature
+            About Deeploma
           </h1>
           <p className="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed">
             We were founded on a simple belief: that every legitimate academic
@@ -84,7 +84,7 @@ export default function About() {
         <div className="relative mb-20 rounded-3xl overflow-hidden">
           <img
             src={blockchainImage}
-            alt="Deep Signature mission"
+            alt="Deeploma mission"
             className="w-full h-64 md:h-80 object-cover opacity-60"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-[#060d1f] via-transparent to-[#060d1f]" />
@@ -105,14 +105,14 @@ export default function About() {
           <div>
             <h2 className="text-white text-2xl mb-4">How we started</h2>
             <p className="text-gray-400 leading-relaxed mb-4">
-              Deep Signature was founded in 2021 after our co-founders
+              Deeploma was founded in 2021 after our co-founders
               discovered that over 40% of job applicants in certain industries
               had misrepresented their academic qualifications — not always
               fraudulently, but often due to a lack of a reliable verification
               mechanism.
             </p>
             <p className="text-gray-400 leading-relaxed">
-              We built Deep Signature to close that gap. By partnering directly
+              We built Deeploma to close that gap. By partnering directly
               with universities and leveraging cryptographic signatures, we
               created a verification ecosystem that is as fast as it is
               trustworthy.
@@ -121,7 +121,7 @@ export default function About() {
           <div>
             <h2 className="text-white text-2xl mb-4">Where we are today</h2>
             <p className="text-gray-400 leading-relaxed mb-4">
-              Today, Deep Signature operates in over 150 countries, with more
+              Today, Deeploma operates in over 150 countries, with more
               than 500 partner universities and 2 million verified degree records.
               We serve HR teams, government agencies, academic institutions, and
               individual graduates.

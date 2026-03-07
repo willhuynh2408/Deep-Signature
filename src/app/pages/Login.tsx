@@ -58,7 +58,7 @@ export default function Login() {
                 className="text-white text-2xl"
                 style={{ fontFamily: "'Climate Crisis', cursive" }}
               >
-                Deep Signature
+                Deeploma
               </span>
             </div>
             <h1 className="text-white text-2xl mb-1">Welcome back</h1>

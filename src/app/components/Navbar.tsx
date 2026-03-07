@@ -18,7 +18,7 @@ export function Navbar() {
             className="text-white tracking-wide text-xl"
             style={{ fontFamily: "'Climate Crisis', cursive" }}
           >
-            Deep Signature
+            Deeploma
           </span>
         </Link>
 
