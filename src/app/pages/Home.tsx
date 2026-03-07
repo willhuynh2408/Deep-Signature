@@ -265,7 +265,7 @@ export default function Home() {
               textShadow: "0 0 80px rgba(6,182,212,0.5), 0 0 160px rgba(6,182,212,0.25)",
             }}
           >
-            Deep
+            Deeploma
             <br />
             <span
               style={{
@@ -275,7 +275,7 @@ export default function Home() {
                 backgroundClip: "text",
               }}
             >
-              Signature
+              
             </span>
           </h1>
 
