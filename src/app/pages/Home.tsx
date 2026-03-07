@@ -260,17 +260,16 @@ export default function Home() {
             className="mb-6 leading-none"
             style={{
               fontFamily: "'Climate Crisis', cursive",
-              fontSize: "clamp(4rem, 12vw, 9rem)",
+              fontSize: "clamp(3rem, 10vw, 8rem)",
               background: "linear-gradient(135deg, #ffffff 0%, #06b6d4 35%, #6366f1 70%, #06b6d4 100%)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text",
-              textShadow: "0 0 80px rgba(6,182,212,0.25)",
+              textShadow: "0 0 60px rgba(6,182,212,0.25)",
             }}
           >
             Deeploma
             <br />
-            Verify Trust
           </h1>
 
           <p className="text-gray-200 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed drop-shadow-lg">
