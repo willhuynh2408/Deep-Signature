@@ -197,11 +197,10 @@ function HowItWorksSlider() {
               <button
                 key={i}
                 onClick={() => setCurrent(i)}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  i === current
+                className={`h-2 rounded-full transition-all duration-300 ${i === current
                     ? "bg-cyan-400 w-8"
                     : "bg-white/20 w-2 hover:bg-white/40"
-                }`}
+                  }`}
               />
             ))}
           </div>
@@ -258,25 +257,20 @@ export default function Home() {
 
           {/* Main Title */}
           <h1
-            className="text-white mb-6 leading-none"
+            className="mb-6 leading-none"
             style={{
               fontFamily: "'Climate Crisis', cursive",
               fontSize: "clamp(4rem, 12vw, 9rem)",
-              textShadow: "0 0 80px rgba(6,182,212,0.5), 0 0 160px rgba(6,182,212,0.25)",
+              background: "linear-gradient(135deg, #ffffff 0%, #06b6d4 35%, #6366f1 70%, #06b6d4 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+              textShadow: "0 0 80px rgba(6,182,212,0.25)",
             }}
           >
             Deeploma
             <br />
-            <span
-              style={{
-                background: "linear-gradient(135deg, #06b6d4, #6366f1, #06b6d4)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
-              
-            </span>
+            Verify Trust
           </h1>
 
           <p className="text-gray-200 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed drop-shadow-lg">
@@ -302,7 +296,7 @@ export default function Home() {
           </div>
         </div>
 
-      
+
       </section>
 
       {/* Stats */}
