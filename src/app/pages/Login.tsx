@@ -56,7 +56,7 @@ export default function Login() {
               <ShieldCheck className="w-8 h-8 text-cyan-400" />
               <span
                 className="text-white text-2xl"
-                style={{ fontFamily: "'Climate Crisis', cursive" }}
+                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
                 Deeploma
               </span>
