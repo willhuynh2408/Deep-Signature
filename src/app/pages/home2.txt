@@ -17,13 +17,29 @@ import {
 } from "lucide-react";
 import {
   motion,
-  useMotionTemplate,
   useScroll,
   useSpring,
   useTransform,
+  MotionValue,
+  useMotionValueEvent,
+  useMotionTemplate,
 } from "framer-motion";
 //import heroBg from "figma:asset/a6fc0b233d4c9f7e18e5e9de0e0473a1be668c7c.png";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { OrbitControls, Stars, useTexture } from "@react-three/drei";
+import * as THREE from "three";
 
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      group: React.DetailedHTMLProps<any, any>;
+      mesh: React.DetailedHTMLProps<any, any>;
+      sphereGeometry: React.DetailedHTMLProps<any, any>;
+      meshStandardMaterial: React.DetailedHTMLProps<any, any>;
+      meshBasicMaterial: React.DetailedHTMLProps<any, any>;
+    }
+  }
+}
 const heroBg =
   "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx1bml2ZXJzaXR5JTIwY2FtcHVzfGVufDF8fHx8MTc3Mjc2NDQ3NXww&ixlib=rb-4.1.0&q=80&w=1080";
 const degreeImage =
@@ -118,12 +134,230 @@ const features = [
   },
 ];
 
+function Earth() {
+  const earthRef = useRef<THREE.Mesh>(null!);
+
+  const earthTexture = useTexture(
+    "/textures/earth.jpg"
+  );
+
+  earthTexture.colorSpace = THREE.SRGBColorSpace;
+  earthTexture.wrapS = THREE.RepeatWrapping;
+  earthTexture.wrapT = THREE.RepeatWrapping;
+  earthTexture.repeat.set(1, 1);
+  earthTexture.offset.set(0, 0);
+  earthTexture.minFilter = THREE.LinearMipmapLinearFilter;
+  earthTexture.magFilter = THREE.LinearFilter;
+  earthTexture.generateMipmaps = true;
+  earthTexture.anisotropy = 8;
+
+  useFrame((_, delta) => {
+    earthRef.current.rotation.y -= delta * 0.18;
+  });
+
+  return (
+    <group>
+      {/* Earth */}
+      <mesh ref={earthRef}>
+        <sphereGeometry args={[1, 64, 64]} />
+        <meshStandardMaterial map={earthTexture} />
+      </mesh>
+
+      {/* Atmosphere glow */}
+      <mesh scale={1.08}>
+        <sphereGeometry args={[1, 64, 64]} />
+        <meshBasicMaterial
+          color="#4fd1ff"
+          transparent
+          opacity={0.08}
+          side={THREE.BackSide}
+        />
+      </mesh>
+    </group>
+  );
+}
+
+export function EarthScene() {
+  return (
+    <div className="w-[320px] h-[320px] md:w-[460px] md:h-[460px]">
+      <Canvas camera={{ position: [0, 0, 3.2], fov: 45 }} gl={{ alpha: true }}>
+        <ambientLight intensity={0.7} />
+        <directionalLight position={[3, 2, 4]} intensity={2} />
+        <Stars radius={80} depth={40} count={2500} factor={3} fade />
+        <Earth />
+        <OrbitControls
+          enableZoom={false}
+          autoRotate
+          autoRotateSpeed={0.6}
+          enablePan={false}
+        />
+      </Canvas>
+    </div>
+  );
+}
+
 const stats = [
   { value: "500+", label: "Partner Universities" },
   { value: "2M+", label: "Verified Degrees" },
   { value: "98.9%", label: "Accuracy Rate" },
   { value: "150+", label: "Countries Supported" },
 ];
+
+type Stat = {
+  value: string;
+  label: string;
+};
+
+function FocusStat({
+  stat,
+  index,
+  total,
+  progress,
+  activeIndex,
+}: {
+  stat: Stat;
+  index: number;
+  total: number;
+  progress: MotionValue<number>;
+  activeIndex: number;
+}) {
+  const current = useTransform(progress, (p) => p * (total - 1));
+  const distance = useTransform(current, (v) => Math.abs(v - index));
+
+  const scale = useSpring(
+    useTransform(distance, [0, 1, 2], [1.06, 1.02, 1]),
+    { stiffness: 160, damping: 24, mass: 0.35 }
+  );
+
+  const x = useSpring(
+    useTransform(distance, [0, 1, 2], [12, 4, 0]),
+    { stiffness: 160, damping: 24, mass: 0.35 }
+  );
+
+  const glowAlpha = useSpring(
+    useTransform(distance, [0, 1, 2], [0.22, 0.08, 0]),
+    { stiffness: 160, damping: 26, mass: 0.35 }
+  );
+
+  const glow = useMotionTemplate`0 0 30px rgba(34,211,238,${glowAlpha})`;
+
+  const isActive = activeIndex === index;
+
+  return (
+    <motion.div
+      className={`rounded-2xl px-5 py-4 transition-all duration-300 ${
+        isActive ? "bg-white/[0.04]" : "bg-transparent"
+      }`}
+      style={{
+        scale,
+        x,
+        boxShadow: glow,
+        willChange: "transform, box-shadow",
+      }}
+    >
+      <div
+        className={`text-3xl md:text-4xl transition-all duration-300 ${
+          isActive
+            ? "text-cyan-300 font-bold"
+            : "text-slate-200 font-medium"
+        }`}
+        style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+      >
+        {stat.value}
+      </div>
+
+      <div
+        className={`mt-2 text-xs md:text-sm uppercase tracking-[0.22em] transition-all duration-300 ${
+          isActive
+            ? "text-white font-semibold"
+            : "text-slate-400 font-medium"
+        }`}
+        style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}
+      >
+        {stat.label}
+      </div>
+    </motion.div>
+  );
+}
+
+function ScrollingStats() {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"],
+  });
+
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 90,
+    damping: 24,
+    mass: 0.28,
+  });
+
+  useMotionValueEvent(smoothProgress, "change", (latest) => {
+    const next = Math.max(
+      0,
+      Math.min(stats.length - 1, Math.round(latest * (stats.length - 1)))
+    );
+
+    setActiveIndex((prev) => (prev === next ? prev : next));
+  });
+
+  const globeScale = useSpring(
+    useTransform(smoothProgress, [0, 1], [1, 1.08]),
+    { stiffness: 120, damping: 20, mass: 0.7 }
+  );
+
+  return (
+    <section
+      ref={containerRef}
+      className="relative h-[150vh] bg-gradient-to-b from-[#040712] via-[#020511] to-[#040712]"
+    >
+      <div className="sticky top-0 min-h-screen flex items-center justify-center overflow-hidden px-6">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_50%,rgba(6,182,212,0.12),transparent_55%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_40%,rgba(99,102,241,0.12),transparent_60%)]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-black/40" />
+        </div>
+
+        <div className="absolute top-10 text-center max-w-3xl mx-auto space-y-3">
+          <span className="text-cyan-300 text-xs uppercase tracking-[0.28em]">
+            Impact in motion
+          </span>
+          <h2 className="text-white text-3xl md:text-4xl font-semibold">
+            Scroll to see Deeploma&apos;s reach
+          </h2>
+          <p className="text-gray-400 text-sm md:text-base">
+            Globe on the left, all stats visible, with the active one highlighted as you scroll.
+          </p>
+        </div>
+
+        <div className="relative z-10 max-w-6xl w-full flex flex-col md:flex-row items-center md:items-center gap-12 md:gap-16 pt-24">
+          <motion.div
+            className="relative drop-shadow-[0_25px_80px_rgba(6,182,212,0.28)]"
+            style={{ scale: globeScale }}
+          >
+            <EarthScene />
+          </motion.div>
+
+          <div className="flex-1 w-full max-w-xl space-y-3">
+            {stats.map((stat, i) => (
+              <FocusStat
+                key={stat.label}
+                stat={stat}
+                index={i}
+                total={stats.length}
+                progress={smoothProgress}
+                activeIndex={activeIndex}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 function HowItWorksSlider() {
   const [current, setCurrent] = useState(0);
@@ -306,32 +540,8 @@ export default function Home() {
 
       </section>
 
-      {/* Stats */}
-      <section className="py-16 bg-gradient-to-r from-cyan-500/5 via-indigo-500/5 to-cyan-500/5 border-y border-white/5">
-        <div className="w-full px-6 md:px-8 lg:px-10">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {stats.map((stat) => (
-              <div
-                key={stat.label}
-                className="min-h-[220px] text-center rounded-[2rem] border border-cyan-400/15 bg-white/[0.04] backdrop-blur-sm px-6 py-10 shadow-[0_0_40px_rgba(34,211,238,0.06)] flex flex-col items-center justify-center"
-              >
-                <div
-                  className="text-4xl md:text-5xl text-cyan-300 mb-4 font-semibold"
-                  style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-                >
-                  {stat.value}
-                </div>
-                <div
-                  className="text-sm md:text-base text-slate-400 uppercase tracking-[0.18em]"
-                  style={{ fontFamily: "'IBM Plex Sans', monospace" }}
-                >
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Stats Orbit */}
+      <ScrollingStats />
 
       {/* How It Works — Slider */}
       <HowItWorksSlider />
