@@ -16,7 +16,7 @@ export function Navbar() {
           <ShieldCheck className="w-7 h-7 text-cyan-400" />
           <span
             className="text-white tracking-wide text-xl"
-            style={{ fontFamily: "'Climate Crisis', cursive" }}
+            style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
             Deeploma
           </span>
