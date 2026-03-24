@@ -25,21 +25,6 @@ import {
   useMotionTemplate,
 } from "framer-motion";
 //import heroBg from "figma:asset/a6fc0b233d4c9f7e18e5e9de0e0473a1be668c7c.png";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Stars, useTexture } from "@react-three/drei";
-import * as THREE from "three";
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      group: React.DetailedHTMLProps<any, any>;
-      mesh: React.DetailedHTMLProps<any, any>;
-      sphereGeometry: React.DetailedHTMLProps<any, any>;
-      meshStandardMaterial: React.DetailedHTMLProps<any, any>;
-      meshBasicMaterial: React.DetailedHTMLProps<any, any>;
-    }
-  }
-}
 const heroBg =
   "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx1bml2ZXJzaXR5JTIwY2FtcHVzfGVufDF8fHx8MTc3Mjc2NDQ3NXww&ixlib=rb-4.1.0&q=80&w=1080";
 const degreeImage =
@@ -134,64 +119,16 @@ const features = [
   },
 ];
 
-function Earth() {
-  const earthRef = useRef<THREE.Mesh>(null!);
-
-  const earthTexture = useTexture(
-    "/textures/earth.jpg"
-  );
-
-  earthTexture.colorSpace = THREE.SRGBColorSpace;
-  earthTexture.wrapS = THREE.RepeatWrapping;
-  earthTexture.wrapT = THREE.RepeatWrapping;
-  earthTexture.repeat.set(1, 1);
-  earthTexture.offset.set(0, 0);
-  earthTexture.minFilter = THREE.LinearMipmapLinearFilter;
-  earthTexture.magFilter = THREE.LinearFilter;
-  earthTexture.generateMipmaps = true;
-  earthTexture.anisotropy = 8;
-
-  useFrame((_, delta) => {
-    earthRef.current.rotation.y -= delta * 0.18;
-  });
-
+function GlobePanel() {
   return (
-    <group>
-      {/* Earth */}
-      <mesh ref={earthRef}>
-        <sphereGeometry args={[1, 64, 64]} />
-        <meshStandardMaterial map={earthTexture} />
-      </mesh>
-
-      {/* Atmosphere glow */}
-      <mesh scale={1.08}>
-        <sphereGeometry args={[1, 64, 64]} />
-        <meshBasicMaterial
-          color="#4fd1ff"
-          transparent
-          opacity={0.08}
-          side={THREE.BackSide}
-        />
-      </mesh>
-    </group>
-  );
-}
-
-export function EarthScene() {
-  return (
-    <div className="w-[320px] h-[320px] md:w-[460px] md:h-[460px]">
-      <Canvas camera={{ position: [0, 0, 3.2], fov: 45 }} gl={{ alpha: true }}>
-        <ambientLight intensity={0.7} />
-        <directionalLight position={[3, 2, 4]} intensity={2} />
-        <Stars radius={80} depth={40} count={2500} factor={3} fade />
-        <Earth />
-        <OrbitControls
-          enableZoom={false}
-          autoRotate
-          autoRotateSpeed={0.6}
-          enablePan={false}
-        />
-      </Canvas>
+    <div className="relative w-[320px] h-[320px] md:w-[460px] md:h-[460px] flex items-center justify-center">
+      <div className="absolute inset-10 rounded-full bg-[radial-gradient(circle_at_30%_30%,rgba(103,232,249,0.28),rgba(14,116,144,0.08)_45%,rgba(2,6,23,0.94)_72%)] border border-cyan-400/20 shadow-[0_0_90px_rgba(34,211,238,0.18)]" />
+      <div className="absolute inset-[18%] rounded-full border border-white/10" />
+      <div className="absolute inset-[28%] rounded-full border border-cyan-400/10" />
+      <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(34,211,238,0.12),transparent_65%)] blur-3xl" />
+      <div className="relative z-10 flex h-36 w-36 md:h-44 md:w-44 items-center justify-center rounded-full border border-cyan-300/30 bg-slate-950/70 backdrop-blur-md">
+        <Globe className="h-16 w-16 md:h-20 md:w-20 text-cyan-300" />
+      </div>
     </div>
   );
 }
@@ -338,7 +275,7 @@ function ScrollingStats() {
             className="relative drop-shadow-[0_25px_80px_rgba(6,182,212,0.28)]"
             style={{ scale: globeScale }}
           >
-            <EarthScene />
+            <GlobePanel />
           </motion.div>
 
           <div className="flex-1 w-full max-w-xl space-y-3">
