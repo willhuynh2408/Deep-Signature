@@ -1,0 +1,60 @@
+export const degreeTypes = [
+  "Bachelor of Arts (BA)",
+  "Bachelor of Science (BSc)",
+  "Bachelor of Engineering (BEng)",
+  "Bachelor of Commerce (BCom)",
+  "Master of Arts (MA)",
+  "Master of Science (MSc)",
+  "Master of Business Administration (MBA)",
+  "Master of Engineering (MEng)",
+  "Doctor of Philosophy (PhD)",
+  "Doctor of Medicine (MD)",
+  "Associate Degree",
+  "Diploma",
+  "Certificate",
+];
+
+export const universities = [
+  "Harvard University",
+  "Stanford University",
+  "Massachusetts Institute of Technology",
+  "University of Oxford",
+  "University of Cambridge",
+  "National University of Singapore",
+  "University of Tokyo",
+  "ETH Zurich",
+  "University of Melbourne",
+  "Chulalongkorn University",
+  "Mahidol University",
+  "Kasetsart University",
+];
+
+export const faculties = [
+  "Faculty of Engineering",
+  "Faculty of Science",
+  "Faculty of Arts & Humanities",
+  "Faculty of Business & Economics",
+  "Faculty of Law",
+  "Faculty of Medicine",
+  "Faculty of Education",
+  "Faculty of Architecture",
+  "Faculty of Information Technology",
+  "Faculty of Social Sciences",
+  "Faculty of Agriculture",
+  "Faculty of Fine Arts",
+];
+
+export const majors = [
+  "Computer Science",
+  "Software Engineering",
+  "Electrical Engineering",
+  "Mechanical Engineering",
+  "Civil Engineering",
+  "Business Administration",
+  "Economics",
+  "Law",
+  "Medicine",
+  "Architecture",
+  "Education",
+  "Psychology",
+];

@@ -1,36 +1,6 @@
 import { useState } from "react";
 import { Building2, CheckCircle2, ChevronDown, Calendar } from "lucide-react";
-
-const degreeTypes = [
-  "Bachelor of Arts (BA)",
-  "Bachelor of Science (BSc)",
-  "Bachelor of Engineering (BEng)",
-  "Bachelor of Commerce (BCom)",
-  "Master of Arts (MA)",
-  "Master of Science (MSc)",
-  "Master of Business Administration (MBA)",
-  "Master of Engineering (MEng)",
-  "Doctor of Philosophy (PhD)",
-  "Doctor of Medicine (MD)",
-  "Associate Degree",
-  "Diploma",
-  "Certificate",
-];
-
-const faculties = [
-  "Faculty of Engineering",
-  "Faculty of Science",
-  "Faculty of Arts & Humanities",
-  "Faculty of Business & Economics",
-  "Faculty of Law",
-  "Faculty of Medicine",
-  "Faculty of Education",
-  "Faculty of Architecture",
-  "Faculty of Information Technology",
-  "Faculty of Social Sciences",
-  "Faculty of Agriculture",
-  "Faculty of Fine Arts",
-];
+import { degreeTypes, faculties, majors, universities } from "../data/academicOptions";
 
 export default function Registration() {
   const [submitted, setSubmitted] = useState(false);
@@ -39,9 +9,9 @@ export default function Registration() {
     lastName: "",
     dateOfBirth: "",
     degreeType: "",
-    major: "",
     university: "",
     faculty: "",
+    major: "",
   });
 
   const handleChange = (field: string, value: string) => {
@@ -67,7 +37,7 @@ export default function Registration() {
             verification certificate within 24 hours.
           </p>
           <button
-            onClick={() => { setSubmitted(false); setForm({ firstName: "", lastName: "", dateOfBirth: "", degreeType: "", major: "", university: "", faculty: "" }); }}
+            onClick={() => { setSubmitted(false); setForm({ firstName: "", lastName: "", dateOfBirth: "", degreeType: "", university: "", faculty: "", major: "" }); }}
             className="bg-cyan-500 hover:bg-cyan-400 text-white px-6 py-3 rounded-xl font-medium transition-all"
           >
             Register Another Graduate
@@ -171,34 +141,25 @@ export default function Registration() {
               </div>
             </div>
 
-            {/* Major */}
-            <div>
-              <label className="block text-sm text-gray-400 mb-2">
-                Major / Field of Study <span className="text-rose-400">*</span>
-              </label>
-              <input
-                type="text"
-                required
-                placeholder="e.g. Computer Science"
-                value={form.major}
-                onChange={(e) => handleChange("major", e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500/60 focus:bg-white/8 transition-all text-sm"
-              />
-            </div>
-
             {/* University */}
             <div>
               <label className="block text-sm text-gray-400 mb-2">
                 University / Institution <span className="text-rose-400">*</span>
               </label>
-              <input
-                type="text"
-                required
-                placeholder="e.g. Massachusetts Institute of Technology"
-                value={form.university}
-                onChange={(e) => handleChange("university", e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500/60 focus:bg-white/8 transition-all text-sm"
-              />
+              <div className="relative">
+                <select
+                  required
+                  value={form.university}
+                  onChange={(e) => handleChange("university", e.target.value)}
+                  className="w-full appearance-none bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500/60 focus:bg-white/8 transition-all text-sm [color-scheme:dark]"
+                >
+                  <option value="" disabled className="bg-[#0f172a]">Select university...</option>
+                  {universities.map((university) => (
+                    <option key={university} value={university} className="bg-[#0f172a]">{university}</option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+              </div>
             </div>
 
             {/* Faculty */}
@@ -216,6 +177,27 @@ export default function Registration() {
                   <option value="" disabled className="bg-[#0f172a]">Select faculty...</option>
                   {faculties.map((f) => (
                     <option key={f} value={f} className="bg-[#0f172a]">{f}</option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+              </div>
+            </div>
+
+            {/* Major */}
+            <div>
+              <label className="block text-sm text-gray-400 mb-2">
+                Major / Field of Study <span className="text-rose-400">*</span>
+              </label>
+              <div className="relative">
+                <select
+                  required
+                  value={form.major}
+                  onChange={(e) => handleChange("major", e.target.value)}
+                  className="w-full appearance-none bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500/60 focus:bg-white/8 transition-all text-sm [color-scheme:dark]"
+                >
+                  <option value="" disabled className="bg-[#0f172a]">Select major...</option>
+                  {majors.map((major) => (
+                    <option key={major} value={major} className="bg-[#0f172a]">{major}</option>
                   ))}
                 </select>
                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
