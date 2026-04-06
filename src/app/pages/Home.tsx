@@ -146,12 +146,6 @@ const stats = [
   { value: "150+", label: "Countries Supported" },
 ];
 
-const heroHighlights = [
-  "Cryptographically signed records",
-  "24/7 public verification",
-  "Batch uploads for institutions",
-];
-
 type Stat = {
   value: string;
   label: string;
@@ -588,21 +582,6 @@ export default function Home() {
                 Register Your Institute
               </Link>
             </motion.div>
-          </motion.div>
-          <motion.div
-            className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-3xl mx-auto"
-            variants={staggerChildren}
-          >
-            {heroHighlights.map((item) => (
-              <motion.div
-                key={item}
-                variants={revealUp}
-                whileHover={{ y: -4 }}
-                className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md px-4 py-4 text-sm text-gray-200 shadow-[0_14px_36px_rgba(4,10,28,0.28)]"
-              >
-                {item}
-              </motion.div>
-            ))}
           </motion.div>
         </motion.div>
 
