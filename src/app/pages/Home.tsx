@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import {
   ShieldCheck,
@@ -16,8 +16,10 @@ import {
   ChevronRight,
 } from "lucide-react";
 import {
+  MotionValue,
   motion,
   useMotionTemplate,
+  useMotionValueEvent,
   useScroll,
   useSpring,
   useTransform,
@@ -31,6 +33,25 @@ const degreeImage =
 
 const universityImage =
   "https://images.unsplash.com/photo-1767969456622-801489bdc169?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx1bml2ZXJzaXR5JTIwY2FtcHVzJTIwYWNhZGVtaWMlMjBidWlsZGluZ3xlbnwxfHx8fDE3NzI3NjQ0Nzd8MA&ixlib=rb-4.1.0&q=80&w=1080";
+
+const revealUp = {
+  hidden: { opacity: 0, y: 28 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
+  },
+};
+
+const staggerChildren = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.12,
+      delayChildren: 0.06,
+    },
+  },
+};
 
 const steps = [
   {
@@ -125,8 +146,192 @@ const stats = [
   { value: "150+", label: "Countries Supported" },
 ];
 
+const heroHighlights = [
+  "Cryptographically signed records",
+  "24/7 public verification",
+  "Batch uploads for institutions",
+];
+
+type Stat = {
+  value: string;
+  label: string;
+};
+
+function GlobePanel() {
+  return (
+    <div className="relative w-[320px] h-[320px] md:w-[460px] md:h-[460px] flex items-center justify-center">
+      <motion.div
+        className="absolute inset-10 rounded-full bg-[radial-gradient(circle_at_30%_30%,rgba(103,232,249,0.28),rgba(14,116,144,0.08)_45%,rgba(2,6,23,0.94)_72%)] border border-cyan-400/20 shadow-[0_0_90px_rgba(34,211,238,0.18)]"
+        animate={{ rotate: 360 }}
+        transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
+      />
+      <div className="absolute inset-[18%] rounded-full border border-white/10" />
+      <motion.div
+        className="absolute inset-[28%] rounded-full border border-cyan-400/10"
+        animate={{ rotate: -360 }}
+        transition={{ duration: 24, repeat: Infinity, ease: "linear" }}
+      />
+      <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(34,211,238,0.12),transparent_65%)] blur-3xl" />
+      <motion.div
+        className="relative z-10 flex h-36 w-36 md:h-44 md:w-44 items-center justify-center rounded-full border border-cyan-300/30 bg-slate-950/70 backdrop-blur-md"
+        animate={{ y: [0, -10, 0], scale: [1, 1.04, 1] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <Globe className="h-16 w-16 md:h-20 md:w-20 text-cyan-300" />
+      </motion.div>
+    </div>
+  );
+}
+
+function FocusStat({
+  stat,
+  index,
+  total,
+  progress,
+  activeIndex,
+}: {
+  stat: Stat;
+  index: number;
+  total: number;
+  progress: MotionValue<number>;
+  activeIndex: number;
+}) {
+  const current = useTransform(progress, (p) => p * (total - 1));
+  const distance = useTransform(current, (value) => Math.abs(value - index));
+
+  const scale = useSpring(
+    useTransform(distance, [0, 1, 2], [1.06, 1.02, 1]),
+    { stiffness: 160, damping: 24, mass: 0.35 }
+  );
+
+  const x = useSpring(
+    useTransform(distance, [0, 1, 2], [12, 4, 0]),
+    { stiffness: 160, damping: 24, mass: 0.35 }
+  );
+
+  const glowAlpha = useSpring(
+    useTransform(distance, [0, 1, 2], [0.22, 0.08, 0]),
+    { stiffness: 160, damping: 26, mass: 0.35 }
+  );
+
+  const glow = useMotionTemplate`0 0 30px rgba(34,211,238,${glowAlpha})`;
+
+  return (
+    <motion.div
+      className={`rounded-2xl px-5 py-4 transition-all duration-300 ${
+        activeIndex === index ? "bg-white/[0.05]" : "bg-transparent"
+      }`}
+      style={{ scale, x, boxShadow: glow, willChange: "transform, box-shadow" }}
+    >
+      <div
+        className={`text-3xl md:text-4xl transition-all duration-300 ${
+          activeIndex === index ? "text-cyan-300 font-bold" : "text-slate-200 font-medium"
+        }`}
+        style={{ fontFamily: "'IBM Plex Mono', monospace" }}
+      >
+        {stat.value}
+      </div>
+      <div
+        className={`mt-2 text-xs md:text-sm uppercase tracking-[0.22em] transition-all duration-300 ${
+          activeIndex === index ? "text-white font-semibold" : "text-slate-400 font-medium"
+        }`}
+        style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}
+      >
+        {stat.label}
+      </div>
+    </motion.div>
+  );
+}
+
+function ScrollingStats() {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"],
+  });
+
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 90,
+    damping: 24,
+    mass: 0.28,
+  });
+
+  useMotionValueEvent(smoothProgress, "change", (latest) => {
+    const next = Math.max(
+      0,
+      Math.min(stats.length - 1, Math.round(latest * (stats.length - 1)))
+    );
+
+    setActiveIndex((current) => (current === next ? current : next));
+  });
+
+  const globeScale = useSpring(
+    useTransform(smoothProgress, [0, 1], [1, 1.08]),
+    { stiffness: 120, damping: 20, mass: 0.7 }
+  );
+
+  return (
+    <section
+      ref={containerRef}
+      className="relative h-[150vh] bg-gradient-to-b from-[#040712] via-[#020511] to-[#040712]"
+    >
+      <div className="sticky top-0 min-h-screen flex items-center justify-center overflow-hidden px-6">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_50%,rgba(6,182,212,0.12),transparent_55%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_40%,rgba(99,102,241,0.12),transparent_60%)]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-black/40" />
+        </div>
+
+        <div className="absolute top-10 text-center max-w-3xl mx-auto space-y-3">
+          <span className="text-cyan-300 text-xs uppercase tracking-[0.28em]">
+            Impact in motion
+          </span>
+          <h2 className="text-white text-3xl md:text-4xl font-semibold">
+            Scroll to see Deeploma&apos;s reach
+          </h2>
+          <p className="text-gray-400 text-sm md:text-base">
+            The globe stays anchored while the active stat shifts focus as you move through the section.
+          </p>
+        </div>
+
+        <div className="relative z-10 max-w-6xl w-full flex flex-col md:flex-row items-center gap-12 md:gap-16 pt-24">
+          <motion.div
+            className="relative drop-shadow-[0_25px_80px_rgba(6,182,212,0.28)]"
+            style={{ scale: globeScale }}
+          >
+            <GlobePanel />
+          </motion.div>
+
+          <div className="flex-1 w-full max-w-xl space-y-3">
+            {stats.map((stat, index) => (
+              <FocusStat
+                key={stat.label}
+                stat={stat}
+                index={index}
+                total={stats.length}
+                progress={smoothProgress}
+                activeIndex={activeIndex}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function HowItWorksSlider() {
   const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setCurrent((value) => (value + 1) % steps.length);
+    }, 6500);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
 
   const prev = () => setCurrent((c) => (c - 1 + steps.length) % steps.length);
   const next = () => setCurrent((c) => (c + 1) % steps.length);
@@ -135,37 +340,59 @@ function HowItWorksSlider() {
 
   return (
     <section className="py-24 px-6 w-full">
-      <div className="text-center mb-14">
-        <span className="text-cyan-400 text-sm uppercase tracking-widest font-medium">
+      <motion.div
+        className="text-center mb-14"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.35 }}
+        variants={staggerChildren}
+      >
+        <motion.span className="text-cyan-400 text-sm uppercase tracking-widest font-medium" variants={revealUp}>
           How It Works
-        </span>
-        <h2 className="text-white mt-3 mb-4 text-3xl md:text-4xl">
+        </motion.span>
+        <motion.h2 className="text-white mt-3 mb-4 text-3xl md:text-4xl" variants={revealUp}>
           Four steps to trust
-        </h2>
-        <p className="text-gray-400 max-w-xl mx-auto">
-          Our seamless process bridges institutions and the public through
-          cryptographic verification technology.
-        </p>
-      </div>
+        </motion.h2>
+        <motion.p className="text-gray-400 max-w-xl mx-auto" variants={revealUp}>
+          Our seamless process bridges institutions and the public through cryptographic verification technology.
+        </motion.p>
+      </motion.div>
 
       {/* Whole slider block */}
-      <div className="relative rounded-3xl overflow-hidden border border-white/10">
+      <motion.div
+        className="relative rounded-3xl overflow-hidden border border-white/10 shadow-[0_30px_80px_rgba(5,10,25,0.45)]"
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+      >
         {/* Background image */}
-        <div
-          className="absolute inset-0 bg-cover bg-center transition-all duration-500"
-          style={{
-            backgroundImage: `url(${step.bgImage})`,
-          }}
+        <motion.div
+          key={step.bgImage}
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${step.bgImage})` }}
+          initial={{ scale: 1.08, opacity: 0.55 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         />
 
         {/* Overlays */}
         <div className="absolute inset-0 bg-black/60" />
-        <div
-          className={`absolute inset-0 bg-gradient-to-br ${step.color} opacity-80`}
+        <div className={`absolute inset-0 bg-gradient-to-br ${step.color} opacity-80`} />
+        <motion.div
+          className="absolute -top-16 -left-16 w-48 h-48 rounded-full bg-cyan-400/10 blur-3xl"
+          animate={{ x: [0, 24, 0], y: [0, 18, 0], scale: [1, 1.12, 1] }}
+          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
         />
 
         {/* Content area */}
-        <div className="relative z-10 p-10 md:p-14 min-h-[420px] flex flex-col md:flex-row items-center gap-10">
+        <motion.div
+          key={step.step}
+          className="relative z-10 p-10 md:p-14 min-h-[420px] flex flex-col md:flex-row items-center gap-10"
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+        >
           {/* Step number watermark */}
           <div
             className="absolute top-6 right-8 text-8xl font-black opacity-10 select-none text-white"
@@ -175,9 +402,13 @@ function HowItWorksSlider() {
           </div>
 
           {/* Icon */}
-          <div className="shrink-0 w-28 h-28 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-md flex items-center justify-center">
+          <motion.div
+            className="shrink-0 w-28 h-28 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-md flex items-center justify-center"
+            animate={{ y: [0, -8, 0] }}
+            transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut" }}
+          >
             {step.icon}
-          </div>
+          </motion.div>
 
           {/* Text */}
           <div className="flex-1 text-center md:text-left">
@@ -194,7 +425,7 @@ function HowItWorksSlider() {
               {step.description}
             </p>
           </div>
-        </div>
+        </motion.div>
 
         {/* Navigation INSIDE the same rounded block */}
         <div className="relative z-10 flex items-center justify-between px-10 md:px-14 pb-8">
@@ -205,7 +436,7 @@ function HowItWorksSlider() {
                 key={i}
                 onClick={() => setCurrent(i)}
                 className={`h-2 rounded-full transition-all duration-300 ${i === current
-                  ? "bg-cyan-400 w-8"
+                  ? "bg-cyan-400 w-8 shadow-[0_0_24px_rgba(34,211,238,0.45)]"
                   : "bg-white/20 w-2 hover:bg-white/40"
                   }`}
               />
@@ -214,56 +445,107 @@ function HowItWorksSlider() {
 
           {/* Arrows */}
           <div className="flex gap-3">
-            <button
+            <motion.button
               onClick={prev}
+              whileHover={{ scale: 1.06, y: -2 }}
+              whileTap={{ scale: 0.96 }}
               className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-300 hover:bg-white/10 hover:text-white hover:border-white/20 transition-all"
             >
               <ChevronLeft className="w-5 h-5" />
-            </button>
+            </motion.button>
 
-            <button
+            <motion.button
               onClick={next}
+              whileHover={{ scale: 1.06, y: -2 }}
+              whileTap={{ scale: 0.96 }}
               className="w-12 h-12 rounded-full bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-300 hover:bg-cyan-500/30 hover:text-cyan-100 transition-all"
             >
               <ChevronRight className="w-5 h-5" />
-            </button>
+            </motion.button>
           </div>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }
 
 export default function Home() {
+  const heroRef = useRef<HTMLElement | null>(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+
+  const heroScale = useSpring(
+    useTransform(scrollYProgress, [0, 1], [1, 1.12]),
+    { stiffness: 120, damping: 22, mass: 0.45 }
+  );
+  const heroGlowY = useSpring(
+    useTransform(scrollYProgress, [0, 1], [0, 120]),
+    { stiffness: 100, damping: 20, mass: 0.45 }
+  );
+  const heroContentY = useSpring(
+    useTransform(scrollYProgress, [0, 1], [0, 80]),
+    { stiffness: 100, damping: 18, mass: 0.45 }
+  );
+  const heroContentOpacity = useTransform(scrollYProgress, [0, 0.9], [1, 0.35]);
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Background image — provided Figma asset */}
         <div className="absolute inset-0 z-0">
-          <img
+          <motion.img
             src={heroBg}
             alt="Background"
             className="w-full h-full object-cover"
+            style={{ scale: heroScale }}
+            initial={{ opacity: 0, scale: 1.06 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
           />
           {/* Dark overlay to keep text readable */}
           <div className="absolute inset-0 bg-[#060d1f]/60" />
           <div className="absolute inset-0 bg-gradient-to-b from-[#060d1f]/40 via-transparent to-[#060d1f]" />
+          <motion.div
+            className="absolute inset-0 bg-[radial-gradient(circle_at_50%_25%,rgba(34,211,238,0.16),transparent_38%)]"
+            style={{ y: heroGlowY }}
+          />
         </div>
 
         {/* Glowing orbs */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl z-0 pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl z-0 pointer-events-none" />
+        <motion.div
+          className="absolute top-1/4 left-[10%] w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl z-0 pointer-events-none"
+          animate={{ x: [0, 35, 0], y: [0, -30, 0], scale: [1, 1.12, 1] }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute bottom-1/4 right-[8%] w-80 h-80 bg-indigo-500/12 rounded-full blur-3xl z-0 pointer-events-none"
+          animate={{ x: [0, -28, 0], y: [0, 24, 0], scale: [1, 1.08, 1] }}
+          transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
+        />
 
-        <div className="relative z-10 text-center max-w-5xl mx-auto px-6">
+        <motion.div
+          className="relative z-10 text-center max-w-5xl mx-auto px-6"
+          style={{ y: heroContentY, opacity: heroContentOpacity }}
+          initial="hidden"
+          animate="visible"
+          variants={staggerChildren}
+        >
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full px-4 py-2 mb-8">
+          <motion.div
+            variants={revealUp}
+            className="inline-flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full px-4 py-2 mb-8 shadow-[0_0_40px_rgba(34,211,238,0.12)]"
+          >
             <ShieldCheck className="w-4 h-4 text-cyan-400" />
             <span className="text-cyan-300 text-sm">Trusted Academic Verification Platform</span>
-          </div>
+          </motion.div>
 
           {/* Main Title */}
-          <h1 className="mb-6 leading-none font-bold uppercase"
+          <motion.h1
+            variants={revealUp}
+            className="mb-6 leading-none font-bold uppercase"
             style={{
               fontFamily: "'Space Grotesk', sans-serif",
               fontSize: "clamp(3rem, 10vw, 8rem)",
@@ -278,60 +560,57 @@ export default function Home() {
           >
             Deeploma
             <br />
-          </h1>
+          </motion.h1>
 
-          <p className="text-gray-200 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed drop-shadow-lg">
+          <motion.p variants={revealUp} className="text-gray-200 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed drop-shadow-lg">
             The world's most secure platform for verifying academic credentials.
             Powered by cryptographic signatures — trusted by universities,
             employers, and individuals worldwide.
-          </p>
+          </motion.p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              to="/verification"
-              className="inline-flex items-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-white px-8 py-4 rounded-xl font-medium transition-all shadow-lg shadow-cyan-500/30 hover:shadow-cyan-400/40"
-            >
-              Verify a Degree
-              <ArrowRight className="w-5 h-5" />
-            </Link>
-            <Link
-              to="/registration"
-              className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 text-white px-8 py-4 rounded-xl font-medium transition-all"
-            >
-              Register Your Institute
-            </Link>
-          </div>
-        </div>
+          <motion.div variants={revealUp} className="flex flex-col sm:flex-row gap-4 justify-center">
+            <motion.div whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Link
+                to="/verification"
+                className="inline-flex items-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-white px-8 py-4 rounded-xl font-medium transition-all shadow-lg shadow-cyan-500/30 hover:shadow-cyan-400/40"
+              >
+                Verify a Degree
+                <motion.span animate={{ x: [0, 4, 0] }} transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}>
+                  <ArrowRight className="w-5 h-5" />
+                </motion.span>
+              </Link>
+            </motion.div>
+            <motion.div whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Link
+                to="/registration"
+                className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 text-white px-8 py-4 rounded-xl font-medium transition-all"
+              >
+                Register Your Institute
+              </Link>
+            </motion.div>
+          </motion.div>
+          <motion.div
+            className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-3xl mx-auto"
+            variants={staggerChildren}
+          >
+            {heroHighlights.map((item) => (
+              <motion.div
+                key={item}
+                variants={revealUp}
+                whileHover={{ y: -4 }}
+                className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md px-4 py-4 text-sm text-gray-200 shadow-[0_14px_36px_rgba(4,10,28,0.28)]"
+              >
+                {item}
+              </motion.div>
+            ))}
+          </motion.div>
+        </motion.div>
 
 
       </section>
 
       {/* Stats */}
-      <section className="py-16 bg-gradient-to-r from-cyan-500/5 via-indigo-500/5 to-cyan-500/5 border-y border-white/5">
-        <div className="w-full px-6 md:px-8 lg:px-10">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {stats.map((stat) => (
-              <div
-                key={stat.label}
-                className="min-h-[220px] text-center rounded-[2rem] border border-cyan-400/15 bg-white/[0.04] backdrop-blur-sm px-6 py-10 shadow-[0_0_40px_rgba(34,211,238,0.06)] flex flex-col items-center justify-center"
-              >
-                <div
-                  className="text-4xl md:text-5xl text-cyan-300 mb-4 font-semibold"
-                  style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-                >
-                  {stat.value}
-                </div>
-                <div
-                  className="text-sm md:text-base text-slate-400 uppercase tracking-[0.18em]"
-                  style={{ fontFamily: "'IBM Plex Sans', monospace" }}
-                >
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <ScrollingStats />
 
       {/* How It Works — Slider */}
       <HowItWorksSlider />
@@ -339,42 +618,64 @@ export default function Home() {
       {/* Features */}
       <section className="py-24 px-6 bg-gradient-to-b from-transparent via-indigo-950/20 to-transparent">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="text-indigo-400 text-sm uppercase tracking-widest font-medium">
+          <motion.div
+            className="text-center mb-16"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={staggerChildren}
+          >
+            <motion.span className="text-indigo-400 text-sm uppercase tracking-widest font-medium" variants={revealUp}>
               Platform Features
-            </span>
-            <h2 className="text-white mt-3 mb-4 text-3xl md:text-4xl">
+            </motion.span>
+            <motion.h2 className="text-white mt-3 mb-4 text-3xl md:text-4xl" variants={revealUp}>
               Built for security, built for scale
-            </h2>
-            <p className="text-gray-400 max-w-xl mx-auto">
+            </motion.h2>
+            <motion.p className="text-gray-400 max-w-xl mx-auto" variants={revealUp}>
               Deeploma is engineered with the most advanced credential
               verification technology available today.
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.15 }}
+            variants={staggerChildren}
+          >
             {features.map((feature) => (
-              <div
+              <motion.div
                 key={feature.title}
-                className="bg-white/3 border border-white/8 rounded-2xl p-6 hover:border-white/15 hover:bg-white/5 transition-all group"
+                variants={revealUp}
+                whileHover={{ y: -10, scale: 1.02 }}
+                className="bg-white/3 border border-white/8 rounded-2xl p-6 hover:border-cyan-400/20 hover:bg-white/6 transition-all group shadow-[0_18px_48px_rgba(5,10,25,0.18)]"
               >
-                <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-4 group-hover:bg-white/8 transition-all">
+                <motion.div
+                  className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-4 group-hover:bg-white/8 transition-all"
+                  whileHover={{ rotate: 8, scale: 1.08 }}
+                >
                   {feature.icon}
-                </div>
+                </motion.div>
                 <h3 className="text-white font-medium mb-2">{feature.title}</h3>
                 <p className="text-gray-400 text-sm leading-relaxed">
                   {feature.description}
                 </p>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* Image showcase */}
       <section className="py-24 px-6 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div>
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.25 }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          >
             <span className="text-teal-400 text-sm uppercase tracking-widest font-medium">
               For Graduates & Employers
             </span>
@@ -386,46 +687,78 @@ export default function Home() {
               creates an immutable link between a graduate's identity and their
               academic record — verified by the awarding institution itself.
             </p>
-            <ul className="space-y-3">
+            <motion.ul
+              className="space-y-3"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+              variants={staggerChildren}
+            >
               {[
                 "Verified by the issuing university",
                 "Personal identity cross-matched",
                 "Degree-level and major confirmed",
                 "Legally admissible audit trail",
               ].map((item) => (
-                <li key={item} className="flex items-center gap-3 text-gray-300 text-sm">
+                <motion.li key={item} variants={revealUp} className="flex items-center gap-3 text-gray-300 text-sm">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                   {item}
-                </li>
+                </motion.li>
               ))}
-            </ul>
-            <Link
-              to="/verification"
-              className="inline-flex items-center gap-2 mt-8 text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
-            >
-              Start verifying now <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-          <div className="relative">
+            </motion.ul>
+            <motion.div whileHover={{ x: 6 }} className="inline-block">
+              <Link
+                to="/verification"
+                className="inline-flex items-center gap-2 mt-8 text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
+              >
+                Start verifying now <ArrowRight className="w-4 h-4" />
+              </Link>
+            </motion.div>
+          </motion.div>
+          <motion.div
+            className="relative"
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.25 }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            whileHover={{ y: -6 }}
+          >
             <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-indigo-500/20 rounded-3xl blur-3xl" />
-            <img
+            <motion.img
               src={degreeImage}
               alt="Degree verification"
-              className="relative rounded-3xl w-full object-cover h-80 border border-white/10"
+              className="relative rounded-3xl w-full object-cover h-80 border border-white/10 shadow-[0_30px_80px_rgba(5,10,25,0.35)]"
+              whileHover={{ scale: 1.03, rotate: 0.4 }}
+              transition={{ duration: 0.35 }}
             />
-          </div>
+          </motion.div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mt-24">
-          <div className="order-2 lg:order-1 relative">
+          <motion.div
+            className="order-2 lg:order-1 relative"
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.25 }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            whileHover={{ y: -6 }}
+          >
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-teal-500/20 rounded-3xl blur-3xl" />
-            <img
+            <motion.img
               src={universityImage}
               alt="University campus"
-              className="relative rounded-3xl w-full object-cover h-80 border border-white/10"
+              className="relative rounded-3xl w-full object-cover h-80 border border-white/10 shadow-[0_30px_80px_rgba(5,10,25,0.35)]"
+              whileHover={{ scale: 1.03, rotate: -0.4 }}
+              transition={{ duration: 0.35 }}
             />
-          </div>
-          <div className="order-1 lg:order-2">
+          </motion.div>
+          <motion.div
+            className="order-1 lg:order-2"
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.25 }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          >
             <span className="text-indigo-400 text-sm uppercase tracking-widest font-medium">
               For Institutions
             </span>
@@ -438,23 +771,50 @@ export default function Home() {
               every degree they issue. Our secure portal makes the process
               simple, fast, and compliant with data protection regulations.
             </p>
-            <Link
-              to="/registration"
-              className="inline-flex items-center gap-2 mt-2 text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
-            >
-              Register your institution <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              <motion.div whileHover={{ x: 6 }} className="inline-block">
+                <Link
+                  to="/registration"
+                  className="inline-flex items-center gap-2 mt-2 text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
+                >
+                  Register your institution <ArrowRight className="w-4 h-4" />
+                </Link>
+              </motion.div>
+              <motion.div whileHover={{ x: 6 }} className="inline-block">
+                <Link
+                  to="/bulk-upload"
+                  className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
+                >
+                  Bulk upload files <ArrowRight className="w-4 h-4" />
+                </Link>
+              </motion.div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
       {/* CTA */}
       <section className="py-24 px-6">
-        <div className="max-w-4xl mx-auto text-center relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-indigo-500/10 to-teal-500/10 rounded-3xl blur-3xl" />
-          <div className="relative bg-white/3 border border-white/10 rounded-3xl p-12 md:p-16">
+        <motion.div
+          className="max-w-4xl mx-auto text-center relative"
+          initial={{ opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-indigo-500/10 to-teal-500/10 rounded-3xl blur-3xl"
+            animate={{ scale: [1, 1.08, 1], opacity: [0.75, 1, 0.75] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <div className="relative bg-white/3 border border-white/10 rounded-3xl p-12 md:p-16 overflow-hidden">
+            <motion.div
+              className="absolute inset-y-0 -left-1/3 w-1/3 bg-gradient-to-r from-transparent via-cyan-400/10 to-transparent"
+              animate={{ x: ["0%", "400%"] }}
+              transition={{ duration: 6.5, repeat: Infinity, ease: "linear" }}
+            />
             <h2
-              className="text-white mb-4"
+              className="text-white mb-4 relative"
               style={{
                 fontFamily: "'Space Grotesk', sans-serif",
                 fontSize: "clamp(2.5rem, 6vw, 4rem)",
@@ -462,31 +822,41 @@ export default function Home() {
             >
               Ready to verify?
             </h2>
-            <p className="text-gray-400 max-w-lg mx-auto mb-8 text-lg">
+            <p className="text-gray-400 max-w-lg mx-auto mb-8 text-lg relative">
               Join thousands of employers and individuals who trust Deep
               Signature for fast, reliable academic credential verification.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                to="/verification"
-                className="inline-flex items-center justify-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-white px-8 py-4 rounded-xl font-medium transition-all shadow-lg shadow-cyan-500/25"
-              >
-                Verify a Degree <ArrowRight className="w-5 h-5" />
-              </Link>
-              <Link
-                to="/login"
-                className="inline-flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/20 text-white px-8 py-4 rounded-xl font-medium transition-all"
-              >
-                Sign In
-              </Link>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center relative">
+              <motion.div whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Link
+                  to="/verification"
+                  className="inline-flex items-center justify-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-white px-8 py-4 rounded-xl font-medium transition-all shadow-lg shadow-cyan-500/25"
+                >
+                  Verify a Degree <ArrowRight className="w-5 h-5" />
+                </Link>
+              </motion.div>
+              <motion.div whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Link
+                  to="/login"
+                  className="inline-flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/20 text-white px-8 py-4 rounded-xl font-medium transition-all"
+                >
+                  Sign In
+                </Link>
+              </motion.div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* Footer */}
       <footer className="border-t border-white/5 py-10 px-6">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+        <motion.div
+          className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4"
+          initial={{ opacity: 0, y: 18 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.6 }}
+          transition={{ duration: 0.65 }}
+        >
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-5 h-5 text-cyan-400" />
             <span
@@ -504,7 +874,7 @@ export default function Home() {
             <a href="#" className="hover:text-gray-300 transition-colors">Terms of Service</a>
             <a href="#" className="hover:text-gray-300 transition-colors">Contact</a>
           </div>
-        </div>
+        </motion.div>
       </footer>
     </div>
   );

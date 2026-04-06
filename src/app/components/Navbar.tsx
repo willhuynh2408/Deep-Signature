@@ -54,6 +54,20 @@ export function Navbar() {
             </span>
           </Link>
 
+          <Link
+            to="/bulk-upload"
+            className={`relative px-5 py-2 rounded-lg transition-all flex flex-col items-center ${
+              isActive("/bulk-upload")
+                ? "bg-cyan-500/20 text-cyan-300"
+                : "text-gray-300 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <span className="text-sm font-medium">Bulk Upload</span>
+            <span className="text-[10px] italic text-cyan-400/80 leading-none mt-0.5">
+              For Institutes
+            </span>
+          </Link>
+
           {/* About Us */}
           <Link
             to="/about"
@@ -106,6 +120,14 @@ export function Navbar() {
           >
             <span className="font-medium">Verification</span>
             <span className="text-xs italic text-teal-400/80">For Public</span>
+          </Link>
+          <Link
+            to="/bulk-upload"
+            onClick={() => setMenuOpen(false)}
+            className="flex flex-col px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/5"
+          >
+            <span className="font-medium">Bulk Upload</span>
+            <span className="text-xs italic text-cyan-400/80">For Institutes</span>
           </Link>
           <Link
             to="/about"
