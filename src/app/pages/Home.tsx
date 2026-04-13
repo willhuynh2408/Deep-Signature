@@ -16,10 +16,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import {
-  MotionValue,
   motion,
-  useMotionTemplate,
-  useMotionValueEvent,
   useScroll,
   useSpring,
   useTransform,
@@ -51,6 +48,16 @@ const staggerChildren = {
       delayChildren: 0.06,
     },
   },
+};
+
+const heroHighlightAnimation = {
+  backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+};
+
+const heroHighlightTransition = {
+  duration: 7,
+  repeat: Infinity,
+  ease: "easeInOut" as const,
 };
 
 const steps = [
@@ -140,175 +147,187 @@ const features = [
 ];
 
 const stats = [
-  { value: "500+", label: "Partner Universities" },
-  { value: "2M+", label: "Verified Degrees" },
-  { value: "98.9%", label: "Accuracy Rate" },
-  { value: "150+", label: "Countries Supported" },
+  {
+    value: "500+",
+    label: "Partner Universities",
+    detail: "Trusted academic institutions actively issuing verified credentials.",
+    accent:
+      "bg-[radial-gradient(circle_at_100%_100%,rgba(34,211,238,0.34),rgba(103,232,249,0.14)_28%,rgba(2,6,23,0)_72%)]",
+    glow: "shadow-[0_30px_80px_rgba(34,211,238,0.14)]",
+    drift: { x: [0, -10, 0], y: [0, -14, 0] },
+    delay: 0.1,
+  },
+  {
+    value: "2M+",
+    label: "Verified Degrees",
+    detail: "Signed records verified instantly by employers, institutions, and graduates.",
+    accent:
+      "bg-[radial-gradient(circle_at_0%_100%,rgba(52,211,153,0.34),rgba(110,231,183,0.14)_28%,rgba(2,6,23,0)_72%)]",
+    glow: "shadow-[0_30px_80px_rgba(52,211,153,0.14)]",
+    drift: { x: [0, 10, 0], y: [0, -14, 0] },
+    delay: 0.35,
+  },
+  {
+    value: "98.9%",
+    label: "Accuracy Rate",
+    detail: "High-confidence matching across institutional records and verification requests.",
+    accent:
+      "bg-[radial-gradient(circle_at_100%_0%,rgba(251,191,36,0.34),rgba(253,224,71,0.14)_28%,rgba(2,6,23,0)_72%)]",
+    glow: "shadow-[0_30px_80px_rgba(251,191,36,0.14)]",
+    drift: { x: [0, -10, 0], y: [0, 14, 0] },
+    delay: 0.2,
+  },
+  {
+    value: "150+",
+    label: "Countries Supported",
+    detail: "A global verification network designed for cross-border hiring and admissions.",
+    accent:
+      "bg-[radial-gradient(circle_at_0%_0%,rgba(96,165,250,0.34),rgba(125,211,252,0.14)_28%,rgba(2,6,23,0)_72%)]",
+    glow: "shadow-[0_30px_80px_rgba(96,165,250,0.14)]",
+    drift: { x: [0, 10, 0], y: [0, 14, 0] },
+    delay: 0.45,
+  },
 ];
-
-type Stat = {
-  value: string;
-  label: string;
-};
 
 function GlobePanel() {
   return (
-    <div className="relative w-[320px] h-[320px] md:w-[460px] md:h-[460px] flex items-center justify-center">
-      <motion.div
-        className="absolute inset-10 rounded-full bg-[radial-gradient(circle_at_30%_30%,rgba(103,232,249,0.28),rgba(14,116,144,0.08)_45%,rgba(2,6,23,0.94)_72%)] border border-cyan-400/20 shadow-[0_0_90px_rgba(34,211,238,0.18)]"
-        animate={{ rotate: 360 }}
-        transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
-      />
-      <div className="absolute inset-[18%] rounded-full border border-white/10" />
-      <motion.div
-        className="absolute inset-[28%] rounded-full border border-cyan-400/10"
-        animate={{ rotate: -360 }}
-        transition={{ duration: 24, repeat: Infinity, ease: "linear" }}
-      />
-      <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(34,211,238,0.12),transparent_65%)] blur-3xl" />
-      <motion.div
-        className="relative z-10 flex h-36 w-36 md:h-44 md:w-44 items-center justify-center rounded-full border border-cyan-300/30 bg-slate-950/70 backdrop-blur-md"
-        animate={{ y: [0, -10, 0], scale: [1, 1.04, 1] }}
-        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-      >
-        <Globe className="h-16 w-16 md:h-20 md:w-20 text-cyan-300" />
-      </motion.div>
-    </div>
-  );
-}
-
-function FocusStat({
-  stat,
-  index,
-  total,
-  progress,
-  activeIndex,
-}: {
-  stat: Stat;
-  index: number;
-  total: number;
-  progress: MotionValue<number>;
-  activeIndex: number;
-}) {
-  const current = useTransform(progress, (p) => p * (total - 1));
-  const distance = useTransform(current, (value) => Math.abs(value - index));
-
-  const scale = useSpring(
-    useTransform(distance, [0, 1, 2], [1.06, 1.02, 1]),
-    { stiffness: 160, damping: 24, mass: 0.35 }
-  );
-
-  const x = useSpring(
-    useTransform(distance, [0, 1, 2], [12, 4, 0]),
-    { stiffness: 160, damping: 24, mass: 0.35 }
-  );
-
-  const glowAlpha = useSpring(
-    useTransform(distance, [0, 1, 2], [0.22, 0.08, 0]),
-    { stiffness: 160, damping: 26, mass: 0.35 }
-  );
-
-  const glow = useMotionTemplate`0 0 30px rgba(34,211,238,${glowAlpha})`;
-
-  return (
     <motion.div
-      className={`rounded-2xl px-5 py-4 transition-all duration-300 ${
-        activeIndex === index ? "bg-white/[0.05]" : "bg-transparent"
-      }`}
-      style={{ scale, x, boxShadow: glow, willChange: "transform, box-shadow" }}
+      className="absolute inset-[30%] mx-auto my-[10%] flex h-[300px] w-[300px] items-center justify-center md:h-[370px] md:w-[370px] lg:h-[410px] lg:w-[410px]"
+      animate={{ y: [0, -12, 0], rotate: [0, 1.5, 0] }}
+      transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
     >
-      <div
-        className={`text-3xl md:text-4xl transition-all duration-300 ${
-          activeIndex === index ? "text-cyan-300 font-bold" : "text-slate-200 font-medium"
-        }`}
-        style={{ fontFamily: "'IBM Plex Mono', monospace" }}
-      >
-        {stat.value}
-      </div>
-      <div
-        className={`mt-2 text-xs md:text-sm uppercase tracking-[0.22em] transition-all duration-300 ${
-          activeIndex === index ? "text-white font-semibold" : "text-slate-400 font-medium"
-        }`}
-        style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}
-      >
-        {stat.label}
+      <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(56,189,248,0.16),transparent_62%)] blur-3xl" />
+      <div className="absolute inset-[6%] rounded-full border border-white/8" />
+      <motion.div
+        className="absolute inset-[2%] rounded-full border border-cyan-300/14"
+        animate={{ rotate: 360 }}
+        transition={{ duration: 34, repeat: Infinity, ease: "linear" }}
+      />
+      <motion.div
+        className="absolute inset-[14%] rounded-full border border-white/8"
+        animate={{ rotate: -360 }}
+        transition={{ duration: 42, repeat: Infinity, ease: "linear" }}
+      />
+
+      <div className="relative z-10 h-[78%] w-[78%] overflow-hidden rounded-full border border-white/15 bg-[#07111f] shadow-[0_28px_120px_rgba(8,145,178,0.28)]">
+        <motion.img
+          src="/textures/earth.jpg"
+          alt="Earth visualization"
+          className="absolute inset-0 h-full w-full scale-[1.16] object-cover"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 80, repeat: Infinity, ease: "linear" }}
+        />
+
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_32%_28%,rgba(255,255,255,0.35),transparent_24%),radial-gradient(circle_at_50%_50%,transparent_45%,rgba(3,7,18,0.12)_72%,rgba(2,6,23,0.72)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(130deg,rgba(255,255,255,0.04),transparent_32%,rgba(14,165,233,0.06)_70%,rgba(2,6,23,0.28))]" />
       </div>
     </motion.div>
   );
 }
 
-function ScrollingStats() {
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"],
-  });
-
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 90,
-    damping: 24,
-    mass: 0.28,
-  });
-
-  useMotionValueEvent(smoothProgress, "change", (latest) => {
-    const next = Math.max(
-      0,
-      Math.min(stats.length - 1, Math.round(latest * (stats.length - 1)))
-    );
-
-    setActiveIndex((current) => (current === next ? current : next));
-  });
-
-  const globeScale = useSpring(
-    useTransform(smoothProgress, [0, 1], [1, 1.08]),
-    { stiffness: 120, damping: 20, mass: 0.7 }
-  );
-
+function FloatingStatCard({
+  stat,
+  className = "",
+}: {
+  stat: (typeof stats)[number];
+  className?: string;
+}) {
   return (
-    <section
-      ref={containerRef}
-      className="relative h-[150vh] bg-gradient-to-b from-[#040712] via-[#020511] to-[#040712]"
+    <motion.article
+      className={`relative overflow-hidden rounded-[28px] border border-white/10 bg-slate-950/65 p-5 lg:p-6 backdrop-blur-xl ${stat.glow} ${className}`}
+      animate={stat.drift}
+      transition={{
+        duration: 7.5,
+        repeat: Infinity,
+        ease: "easeInOut",
+        delay: stat.delay,
+      }}
     >
-      <div className="sticky top-0 min-h-screen flex items-center justify-center overflow-hidden px-6">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_50%,rgba(6,182,212,0.12),transparent_55%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_40%,rgba(99,102,241,0.12),transparent_60%)]" />
-          <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-black/40" />
-        </div>
+      <div className={`absolute inset-0 ${stat.accent}`} />
+      <div className="absolute inset-[1px] rounded-[27px] border border-white/6" />
+      <div className="relative z-10">
+        <p
+          className="text-[2.2rem] leading-none font-semibold tracking-[-0.05em] text-white md:text-[2.45rem] lg:text-[2.9rem]"
+          style={{ fontFamily: "'Inter', sans-serif" }}
+        >
+          {stat.value}
+        </p>
+        <p
+          className="mt-3 text-xs font-semibold uppercase tracking-[0.22em] text-slate-100/88 md:text-[0.72rem]"
+          style={{ fontFamily: "'Inter', sans-serif" }}
+        >
+          {stat.label}
+        </p>
+        <p
+          className="mt-3 max-w-xs text-sm leading-5 text-slate-300 md:text-[0.82rem]"
+          style={{ fontFamily: "'Inter', sans-serif" }}
+        >
+          {stat.detail}
+        </p>
+      </div>
+    </motion.article>
+  );
+}
 
-        <div className="absolute top-10 text-center max-w-3xl mx-auto space-y-3">
-          <span className="text-cyan-300 text-xs uppercase tracking-[0.28em]">
-            Impact in motion
+function ScrollingStats() {
+  return (
+    <section className="relative overflow-hidden bg-[linear-gradient(180deg,#020611_0%,#061120_38%,#040c18_72%,#020611_100%)] px-6 py-20 md:py-20 lg:py-24">
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_24%,rgba(45,212,191,0.1),transparent_30%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_20%,rgba(56,189,248,0.12),transparent_28%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_58%,rgba(14,165,233,0.08),transparent_34%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.04),transparent_20%,transparent_80%,rgba(148,163,184,0.04))]" />
+      </div>
+
+      <div className="relative mx-auto max-w-7xl">
+        <div className="mx-auto max-w-3xl text-center">
+          <span
+            className="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-300"
+            style={{ fontFamily: "'Inter', sans-serif" }}
+          >
+            Global Footprint
           </span>
-          <h2 className="text-white text-3xl md:text-4xl font-semibold">
-            Scroll to see Deeploma&apos;s reach
+          <h2 className="mt-3 text-3xl font-semibold text-white md:text-4xl lg:text-[2.8rem]">
+            Verified reach, centered around a real-world network
           </h2>
-          <p className="text-gray-400 text-sm md:text-base">
-            The globe stays anchored while the active stat shifts focus as you move through the section.
+          <p
+            className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-slate-300 md:text-[0.95rem]"
+            style={{ fontFamily: "'Inter', sans-serif" }}
+          >
+            Deeploma&apos;s verification infrastructure spans institutions, employers, and graduates worldwide.
+            The section now keeps the Earth visual at the center and pushes each key metric into a clearer corner
+            position.
           </p>
         </div>
 
-        <div className="relative z-10 max-w-6xl w-full flex flex-col md:flex-row items-center gap-12 md:gap-16 pt-24">
-          <motion.div
-            className="relative drop-shadow-[0_25px_80px_rgba(6,182,212,0.28)]"
-            style={{ scale: globeScale }}
-          >
-            <GlobePanel />
-          </motion.div>
-
-          <div className="flex-1 w-full max-w-xl space-y-3">
-            {stats.map((stat, index) => (
-              <FocusStat
-                key={stat.label}
-                stat={stat}
-                index={index}
-                total={stats.length}
-                progress={smoothProgress}
-                activeIndex={activeIndex}
-              />
+        <div className="mt-14 md:hidden">
+          <GlobePanel />
+          <div className="mt-8 grid gap-4 sm:grid-cols-2">
+            {stats.map((stat) => (
+              <FloatingStatCard key={stat.label} stat={stat} />
             ))}
+          </div>
+        </div>
+
+        <div className="mt-10 hidden min-h-[560px] grid-cols-[minmax(150px,1fr)_minmax(240px,370px)_minmax(150px,1fr)] grid-rows-[1fr_auto_1fr] items-center gap-x-0 gap-y-2 lg:mt-12 lg:min-h-[620px] lg:grid-cols-[minmax(170px,1fr)_minmax(270px,410px)_minmax(170px,1fr)] lg:gap-x-2 lg:gap-y-4 md:grid">
+          <div className="col-start-1 row-start-1 self-start justify-self-end">
+            <FloatingStatCard stat={stats[0]} className="w-[200px] lg:w-[240px]" />
+          </div>
+
+          <div className="col-start-3 row-start-1 self-start justify-self-start">
+            <FloatingStatCard stat={stats[1]} className="w-[200px] lg:w-[240px]" />
+          </div>
+
+          <div className="col-start-2 row-start-2 z-10 justify-self-center">
+            <GlobePanel />
+          </div>
+
+          <div className="col-start-1 row-start-3 self-end justify-self-end">
+            <FloatingStatCard stat={stats[2]} className="w-[200px] lg:w-[240px]" />
+          </div>
+
+          <div className="col-start-3 row-start-3 self-end justify-self-start">
+            <FloatingStatCard stat={stats[3]} className="w-[200px] lg:w-[240px]" />
           </div>
         </div>
       </div>
@@ -485,7 +504,7 @@ export default function Home() {
   const heroContentOpacity = useTransform(scrollYProgress, [0, 0.9], [1, 0.35]);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-x-hidden">
       {/* Hero Section */}
       <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Background image — provided Figma asset */}
@@ -556,19 +575,48 @@ export default function Home() {
             <br />
           </motion.h1>
 
-          <motion.p variants={revealUp} className="text-gray-200 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed drop-shadow-lg">
-            The world's most secure platform for verifying academic credentials.
-            Powered by cryptographic signatures — trusted by universities,
-            employers, and individuals worldwide.
+          <motion.p
+            variants={revealUp}
+            className="text-gray-200 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed drop-shadow-lg"
+          >
+            <motion.span
+              className="bg-[linear-gradient(90deg,#ffffff_0%,#d9f3fb_24%,#8ee7f8_50%,#c7d2fe_76%,#ffffff_100%)] bg-[length:220%_220%] bg-clip-text font-semibold text-transparent [text-shadow:0_0_10px_rgba(255,255,255,0.1)]"
+              animate={heroHighlightAnimation}
+              transition={heroHighlightTransition}
+            >
+              Secure
+            </motion.span>
+            ,{" "}
+            <motion.span
+              className="bg-[linear-gradient(90deg,#eaf7fb_0%,#9ae6f4_24%,#57d5eb_52%,#a5b4fc_78%,#eaf7fb_100%)] bg-[length:220%_220%] bg-clip-text font-semibold text-transparent [text-shadow:0_0_12px_rgba(34,211,238,0.12)]"
+              animate={heroHighlightAnimation}
+              transition={{ ...heroHighlightTransition, delay: 0.35 }}
+            >
+              instant verification
+            </motion.span>{" "}
+            for academic credentials, trusted by universities and employers{" "}
+            <motion.span
+              className="bg-[linear-gradient(90deg,#dbe4ff_0%,#bac6ff_24%,#8fe3f4_52%,#ffffff_78%,#dbe4ff_100%)] bg-[length:220%_220%] bg-clip-text font-semibold text-transparent [text-shadow:0_0_12px_rgba(129,140,248,0.12)]"
+              animate={heroHighlightAnimation}
+              transition={{ ...heroHighlightTransition, delay: 0.7 }}
+            >
+              worldwide
+            </motion.span>
+            .
           </motion.p>
 
-          <motion.div variants={revealUp} className="flex flex-col sm:flex-row gap-4 justify-center">
+          <motion.div variants={revealUp} className="flex w-full flex-col justify-center gap-4 sm:flex-row">
             <motion.div whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Link
                 to="/verification"
-                className="inline-flex items-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-white px-8 py-4 rounded-xl font-medium transition-all shadow-lg shadow-cyan-500/30 hover:shadow-cyan-400/40"
+                className="group inline-flex w-full max-w-full items-center justify-between gap-4 rounded-2xl border border-cyan-300/30 bg-cyan-500/85 px-6 py-4 text-left text-white transition-all duration-300 sm:min-w-[280px] sm:w-auto hover:border-cyan-200/60 hover:bg-[linear-gradient(135deg,#38bdf8_0%,#22d3ee_48%,#0891b2_100%)] hover:shadow-xl hover:shadow-cyan-400/20"
               >
-                Verify a Degree
+                <span className="flex flex-col">
+                  <span className="font-medium">Verify a Degree</span>
+                  <span className="mt-1 text-sm text-cyan-50/80 transition-colors duration-300 group-hover:text-white">
+                    I&apos;m an Employer / User.
+                  </span>
+                </span>
                 <motion.span animate={{ x: [0, 4, 0] }} transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}>
                   <ArrowRight className="w-5 h-5" />
                 </motion.span>
@@ -577,9 +625,14 @@ export default function Home() {
             <motion.div whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Link
                 to="/registration"
-                className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 text-white px-8 py-4 rounded-xl font-medium transition-all"
+                className="group inline-flex w-full max-w-full items-center rounded-2xl border border-white/25 bg-white/8 px-6 py-4 text-left text-white backdrop-blur-sm transition-all duration-300 sm:min-w-[280px] sm:w-auto hover:border-cyan-200/35 hover:bg-[linear-gradient(135deg,rgba(255,255,255,0.18)_0%,rgba(125,211,252,0.14)_42%,rgba(15,23,42,0.58)_100%)] hover:shadow-xl hover:shadow-slate-900/25"
               >
-                Register Your Institute
+                <span className="flex flex-col">
+                  <span className="font-medium">Register Your Institute</span>
+                  <span className="mt-1 text-sm text-slate-300 transition-colors duration-300 group-hover:text-cyan-50">
+                    I&apos;m a University.
+                  </span>
+                </span>
               </Link>
             </motion.div>
           </motion.div>
@@ -858,3 +911,5 @@ export default function Home() {
     </div>
   );
 }
+
+
