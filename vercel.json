@@ -1,7 +1,23 @@
 {
   "rewrites": [
     {
-      "source": "/((?!api/).*)",
+      "source": "/deeploma/assets/:path*",
+      "destination": "/assets/:path*"
+    },
+    {
+      "source": "/deeploma/textures/:path*",
+      "destination": "/textures/:path*"
+    },
+    {
+      "source": "/deeploma",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/deeploma/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/:path*",
       "destination": "/index.html"
     }
   ]

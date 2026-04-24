@@ -21,6 +21,8 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
+import { ROUTES } from "../paths";
+import { withBasePath } from "../basePath";
 //import heroBg from "figma:asset/a6fc0b233d4c9f7e18e5e9de0e0473a1be668c7c.png";
 
 const heroBg =
@@ -211,7 +213,7 @@ function GlobePanel() {
 
       <div className="relative z-10 h-[78%] w-[78%] overflow-hidden rounded-full border border-white/15 bg-[#07111f] shadow-[0_28px_120px_rgba(8,145,178,0.28)]">
         <motion.img
-          src="/textures/earth.jpg"
+          src={withBasePath("/textures/earth.jpg")}
           alt="Earth visualization"
           className="absolute inset-0 h-full w-full scale-[1.16] object-cover"
           animate={{ rotate: 360 }}
@@ -608,7 +610,7 @@ export default function Home() {
           <motion.div variants={revealUp} className="flex w-full flex-col justify-center gap-4 sm:flex-row">
             <motion.div whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Link
-                to="/verification"
+                to={ROUTES.verification}
                 className="group inline-flex w-full max-w-full items-center justify-between gap-4 rounded-2xl border border-cyan-300/30 bg-cyan-500/85 px-6 py-4 text-left text-white transition-all duration-300 sm:min-w-[280px] sm:w-auto hover:border-cyan-200/60 hover:bg-[linear-gradient(135deg,#38bdf8_0%,#22d3ee_48%,#0891b2_100%)] hover:shadow-xl hover:shadow-cyan-400/20"
               >
                 <span className="flex flex-col">
@@ -624,7 +626,7 @@ export default function Home() {
             </motion.div>
             <motion.div whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Link
-                to="/registration"
+                to={ROUTES.registration}
                 className="group inline-flex w-full max-w-full items-center rounded-2xl border border-white/25 bg-white/8 px-6 py-4 text-left text-white backdrop-blur-sm transition-all duration-300 sm:min-w-[280px] sm:w-auto hover:border-cyan-200/35 hover:bg-[linear-gradient(135deg,rgba(255,255,255,0.18)_0%,rgba(125,211,252,0.14)_42%,rgba(15,23,42,0.58)_100%)] hover:shadow-xl hover:shadow-slate-900/25"
               >
                 <span className="flex flex-col">
@@ -740,7 +742,7 @@ export default function Home() {
             </motion.ul>
             <motion.div whileHover={{ x: 6 }} className="inline-block">
               <Link
-                to="/verification"
+                to={ROUTES.verification}
                 className="inline-flex items-center gap-2 mt-8 text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
               >
                 Start verifying now <ArrowRight className="w-4 h-4" />
@@ -806,7 +808,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
               <motion.div whileHover={{ x: 6 }} className="inline-block">
                 <Link
-                  to="/registration"
+                  to={ROUTES.registration}
                   className="inline-flex items-center gap-2 mt-2 text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
                 >
                   Register your institution <ArrowRight className="w-4 h-4" />
@@ -814,7 +816,7 @@ export default function Home() {
               </motion.div>
               <motion.div whileHover={{ x: 6 }} className="inline-block">
                 <Link
-                  to="/bulk-upload"
+                  to={ROUTES.bulkUpload}
                   className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
                 >
                   Bulk upload files <ArrowRight className="w-4 h-4" />
@@ -861,7 +863,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center relative">
               <motion.div whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Link
-                  to="/verification"
+                  to={ROUTES.verification}
                   className="inline-flex items-center justify-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-white px-8 py-4 rounded-xl font-medium transition-all shadow-lg shadow-cyan-500/25"
                 >
                   Verify a Degree <ArrowRight className="w-5 h-5" />
@@ -869,7 +871,7 @@ export default function Home() {
               </motion.div>
               <motion.div whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 <Link
-                  to="/login"
+                  to={ROUTES.login}
                   className="inline-flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/20 text-white px-8 py-4 rounded-xl font-medium transition-all"
                 >
                   Sign In

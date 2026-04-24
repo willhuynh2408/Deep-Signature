@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { ShieldCheck, Eye, EyeOff, Mail, Lock, AlertTriangle, X } from "lucide-react";
+import { ROUTES } from "../paths";
 
 // Google SVG icon
 function GoogleIcon() {
@@ -165,7 +166,7 @@ export default function Login() {
           <p className="text-center text-gray-500 text-sm mt-6">
             Don't have an account?{" "}
             <Link
-              to="/registration"
+              to={ROUTES.registration}
               className="text-cyan-400 hover:text-cyan-300 transition-colors"
             >
               Register your institution
